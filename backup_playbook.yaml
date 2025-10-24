@@ -1,6 +1,6 @@
 ---
 - name: AUTOMATIC BACKUP OF RUNNING-CONFIG
-  hosts: R1
+  hosts: all
   gather_facts: false
   connection: network_cli
  
