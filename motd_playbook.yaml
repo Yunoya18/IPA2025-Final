@@ -1,0 +1,11 @@
+---
+- name: SET MOTD
+  hosts: all
+  gather_facts: false
+  connection: network_cli
+
+  tasks:
+    - name: SET MOTD BANNER
+      ios_config:
+        lines:
+          - 'banner motd # {{ text }} #'

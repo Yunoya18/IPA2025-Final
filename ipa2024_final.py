@@ -92,7 +92,7 @@ while True:
                 if method == "":
                     responseMessage = "Error: No method specified"
                 else:
-                    if command in ['create', 'delete', 'enable', 'disable', 'status', 'gigabit_status', 'showrun']:
+                    if command in ['create', 'delete', 'enable', 'disable', 'status', 'gigabit_status', 'showrun', 'set_motd']:
                         responseMessage = "Error: No IP specified"
                     else:
                         responseMessage = "Error: No command found."
@@ -103,6 +103,8 @@ while True:
                 responseMessage = netmiko_final.gigabit_status(ip)
             elif command == "showrun":
                 responseMessage = ansible_final.showrun(ip)
+            elif command == "set_motd":
+                pass
             else:
                 if method == "restconf":
                     if command == "create":
@@ -132,6 +134,12 @@ while True:
                         responseMessage = "Error: No command or unknown command"
                 else:
                     responseMessage = "Error: No method specified"
+        elif len(all_command) == 4:
+            ip = all_command[1].strip()
+            command = all_command[2].strip()
+            txt = all_command[3].strip()
+            if command == "set_motd":
+                responseMessage = ansible_final.set_motd(ip, txt)
 # 6. Complete the code to post the message to the Webex Teams room.
 
         # The Webex Teams POST JSON data for command showrun
