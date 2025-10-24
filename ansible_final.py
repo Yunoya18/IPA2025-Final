@@ -19,7 +19,7 @@ def set_motd(ip, txt):
             "ansible_password=cisco "
             "ansible_connection=network_cli "
             "ansible_network_os=ios "
-            f"text={txt}"
+            f'text="{txt}"'
         )
     ]
     result = subprocess.run(command, capture_output=True, text=True)
