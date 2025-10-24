@@ -28,6 +28,8 @@ roomIdToGetMessages = (
     "Y2lzY29zcGFyazovL3VybjpURUFNOnVzLXdlc3QtMl9yL1JPT00vYmQwODczMTAtNmMyNi0xMWYwLWE1MWMtNzkzZDM2ZjZjM2Zm"
 )
 
+method = ""
+
 while True:
     # always add 1 second of delay to the loop to not go over a rate limit of API calls
     time.sleep(1)
@@ -75,28 +77,42 @@ while True:
     if message.startswith("/66070200"):
 
         # extract the command
-        command = message.split()[1]
+        all_command = message.split()
+        command = all_command[1].strip()
         print(command)
 
-# 5. Complete the logic for each command
-
-        if command == "create":
-            responseMessage = create()
-        elif command == "delete":
-            responseMessage = delete()
-        elif command == "enable":
-            responseMessage = enable()
-        elif command == "disable":
-            responseMessage = disable()
-        elif command == "status":
-            responseMessage = status()
-        elif command == "gigabit_status":
-            responseMessage = gigabit_status()
-        elif command == "showrun":
-            responseMessage = showrun()
+        if command in ['restconf', 'netconf']:
+            responseMessage = f"Ok: {command.capitalize()}"
+            method = command
         else:
-            responseMessage = "Error: No command or unknown command"
-        
+            if method == "":
+                responseMessage = "Error: No method specified"
+            else:
+                if len(all_command) < 3:
+                    if command in ['create', 'delete', 'enable', 'disable', 'status', 'gigabit_status', 'showrun']:
+                        responseMessage = "Error: No IP specified"
+                    else:
+                        responseMessage = "No command found."
+                else:
+                    ip = all_command[1].strip()
+                    command = all_command[2].strip()
+    # 5. Complete the logic for each command
+                    if command == "create":
+                        responseMessage = create(ip)
+                    elif command == "delete":
+                        responseMessage = delete(ip)
+                    elif command == "enable":
+                        responseMessage = enable(ip)
+                    elif command == "disable":
+                        responseMessage = disable(ip)
+                    elif command == "status":
+                        responseMessage = status(ip)
+                    elif command == "gigabit_status":
+                        responseMessage = gigabit_status(ip)
+                    elif command == "showrun":
+                        responseMessage = showrun(ip)
+                    else:
+                        responseMessage = "Error: No command or unknown command"
 # 6. Complete the code to post the message to the Webex Teams room.
 
         # The Webex Teams POST JSON data for command showrun
