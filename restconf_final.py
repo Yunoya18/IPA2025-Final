@@ -10,6 +10,22 @@ headers = { "Accept": "application/yang-data+json",
             "Content-type":"application/yang-data+json"}
 basicauth = ("admin", "cisco")
 
+def check_interface(ip):
+    api_url = f"https://{ip}"
+    api_url_status = api_url + "/restconf/data/ietf-interfaces:interfaces/interface=Loopback66070200"
+
+    resp = requests.get(
+        api_url_status,
+        auth=basicauth,
+        headers=headers,
+        verify=False
+    )
+
+    if (resp.status_code >= 200 and resp.status_code <= 299):
+        return True
+    else:
+        return False
+
 def create(ip):
     api_url = f"https://{ip}"
     yangConfig = {
@@ -30,21 +46,22 @@ def create(ip):
         }
     }
 
-    resp = requests.put(
-        api_url + "/restconf/data/ietf-interfaces:interfaces/interface=Loopback66070200",
-        data=json.dumps(yangConfig),
-        auth=basicauth,
-        headers=headers,
-        verify=False
-    )
-    if resp.status_code == 204:
+    if check_interface(ip):
         return "Cannot create: Interface loopback 66070200"
-    elif (resp.status_code >= 200 and resp.status_code <= 299):
-        print("STATUS OK: {}".format(resp.status_code))
-        return "Interface loopback 66070200 is created successfully using Restconf"
     else:
-        print('Error. Status Code: {}'.format(resp.status_code))
-        return "Cannot create: Interface loopback 66070200"
+        resp = requests.put(
+            api_url + "/restconf/data/ietf-interfaces:interfaces/interface=Loopback66070200",
+            data=json.dumps(yangConfig),
+            auth=basicauth,
+            headers=headers,
+            verify=False
+        )
+        if (resp.status_code >= 200 and resp.status_code <= 299):
+            print("STATUS OK: {}".format(resp.status_code))
+            return "Interface loopback 66070200 is created successfully using Restconf"
+        else:
+            print('Error. Status Code: {}'.format(resp.status_code))
+            return "Cannot create: Interface loopback 66070200"
 
 def delete(ip):
     api_url = f"https://{ip}"
@@ -73,7 +90,7 @@ def enable(ip):
         }
     }
 
-    resp = requests.put(
+    resp = requests.patch(
         api_url + "/restconf/data/ietf-interfaces:interfaces/interface=Loopback66070200",
         data=json.dumps(yangConfig),
         auth=basicauth,
@@ -99,7 +116,7 @@ def disable(ip):
         }
     }
 
-    resp = requests.put(
+    resp = requests.patch(
         api_url + "/restconf/data/ietf-interfaces:interfaces/interface=Loopback66070200", 
         data=json.dumps(yangConfig),
         auth=basicauth,
@@ -124,7 +141,7 @@ def status(ip):
         auth=basicauth,
         headers=headers,
         verify=False
-        )
+    )
 
     if(resp.status_code >= 200 and resp.status_code <= 299):
         print("STATUS OK: {}".format(resp.status_code))

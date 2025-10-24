@@ -11,6 +11,25 @@ def setup(ip):
         )
     return m
 
+def check_interface(ip):
+    netconf_filter = """
+    <filter>
+      <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+        <interface>
+          <name>Loopback66070200</name>
+        </interface>
+      </interfaces-state>
+    </filter>
+    """
+
+    m = setup(ip)
+    netconf_reply = m.get(filter=netconf_filter)
+    netconf_reply_dict = xmltodict.parse(netconf_reply.xml)
+    if netconf_reply_dict:
+        return True
+    else:
+        return False
+
 def create(ip):
     netconf_config = """
     <config>
@@ -33,17 +52,20 @@ def create(ip):
     </config>
     """
 
-    try:
-        netconf_reply = netconf_edit_config(ip, netconf_config)
-        xml_data = netconf_reply.xml
-        print(xml_data)
-        if '<ok/>' in xml_data:
-            return "Interface loopback 66070200 is created successfully using Netconf"
-        else:
-            return "Cannot create: Interface loopback 66070200"
-    except:
-        print("Error!")
+    if check_interface(ip):
         return "Cannot create: Interface loopback 66070200"
+    else:
+        try:
+            netconf_reply = netconf_edit_config(ip, netconf_config)
+            xml_data = netconf_reply.xml
+            print(xml_data)
+            if '<ok/>' in xml_data:
+                return "Interface loopback 66070200 is created successfully using Netconf"
+            else:
+                return "Cannot create: Interface loopback 66070200"
+        except:
+            print("Error!")
+            return "Cannot create: Interface loopback 66070200"
 
 
 def delete(ip):
