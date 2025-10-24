@@ -21,13 +21,20 @@ def check_interface(ip):
       </interfaces-state>
     </filter>
     """
+    
+    try:
+        m = setup(ip)
+        netconf_reply = m.get(filter=netconf_filter)
+        netconf_reply_dict = xmltodict.parse(netconf_reply.xml)
+        interface_data = netconf_reply_dict.get("rpc-reply", {}).get("data", {}).get("interfaces-state", {}).get("interface")
 
-    m = setup(ip)
-    netconf_reply = m.get(filter=netconf_filter)
-    netconf_reply_dict = xmltodict.parse(netconf_reply.xml)
-    if netconf_reply_dict:
-        return True
-    else:
+        if interface_data:
+            return True
+        else:
+            return False
+            
+    except Exception as e:
+        print(f"Error in check_interface: {e}")
         return False
 
 def create(ip):
