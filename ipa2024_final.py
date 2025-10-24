@@ -88,6 +88,11 @@ while True:
             if command in ['restconf', 'netconf']:
                 responseMessage = f"Ok: {command.capitalize()}"
                 method = command
+            elif command in ['gigabit_status', 'showrun']:
+                if command == "gigabit_status":
+                    responseMessage = netmiko_final.gigabit_status()
+                elif command == "showrun":
+                    responseMessage = ansible_final.showrun()
             else:
                 if method == "":
                     responseMessage = "Error: No method specified"
@@ -155,7 +160,7 @@ while True:
         # https://developer.webex.com/docs/basics for more detail
 
         if command == "showrun" and responseMessage == 'ok':
-            filename = "show_run_66070200_R1.txt"
+            filename = "show_run_66070200_Router.txt"
             fileobject = open(filename, "rb")
             filetype = "text/plain"
             postData = {

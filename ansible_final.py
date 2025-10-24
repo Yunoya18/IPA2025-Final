@@ -1,8 +1,17 @@
 import subprocess
 
-def showrun():
+def showrun(ip="10.0.15.61"):
     # read https://www.datacamp.com/tutorial/python-subprocess to learn more about subprocess
-    command = ['ansible-playbook', 'backup_playbook.yaml', '-i', 'hosts']
+    command = [
+        'ansible-playbook', 'backup_playbook.yaml',
+        '-i', f'{ip},',
+        '-e', (
+            "ansible_user=admin "
+            "ansible_password=cisco "
+            "ansible_connection=network_cli "
+            "ansible_network_os=ios "
+        )
+    ]
     result = subprocess.run(command, capture_output=True, text=True)
     result = result.stdout
     if 'ok=2' in result:

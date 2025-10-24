@@ -1,6 +1,6 @@
 ---
 - name: AUTOMATIC BACKUP OF RUNNING-CONFIG
-  hosts: R1
+  hosts: all
   gather_facts: false
   connection: network_cli
  
@@ -14,4 +14,4 @@
    - name: SAVE OUTPUT
      copy:
        content: "{{ config.stdout[0] }}"
-       dest: "show_run_66070200_{{ inventory_hostname }}.txt"
+       dest: "show_run_66070200_Router.txt"
