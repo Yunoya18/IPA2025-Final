@@ -1,19 +1,23 @@
 from netmiko import ConnectHandler
 from pprint import pprint
+import re
 
-device_ip = "10.0.15.61"
-username = "admin"
-password = "cisco"
+def setup(ip="10.0.15.61"):
+    device_ip = ip
+    username = "admin"
+    password = "cisco"
 
-device_params = {
-    "device_type": "cisco_ios",
-    "ip": device_ip,
-    "username": username,
-    "password": password,
-}
+    device_params = {
+        "device_type": "cisco_ios",
+        "ip": device_ip,
+        "username": username,
+        "password": password,
+    }
+    return device_params
 
 def gigabit_status():
     ans = ""
+    device_params = setup()
     with ConnectHandler(**device_params) as ssh:
         up = 0
         down = 0
@@ -32,3 +36,13 @@ def gigabit_status():
         ans = ", ".join(interfaces) + f" -> {up} up, {down} down, {admin_down} administratively down"
         pprint(ans)
         return ans
+
+def get_motd(ip):
+    device_params = setup(ip)
+    with ConnectHandler(**device_params) as ssh:
+        result = ssh.send_command("show run | include ^banner motd")
+    txt = re.search(r'banner motd #(.+)#', result)
+    if txt:
+        return txt.group(1)
+    else:
+        return "No MOTD configured"
