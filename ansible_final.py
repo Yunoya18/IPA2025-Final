@@ -25,6 +25,6 @@ def set_motd(ip, txt):
     result = subprocess.run(command, capture_output=True, text=True)
     result = result.stdout
     if 'ok=1' in result:
-        return "ok"
+        return "Ok: success"
     else:
         return "Error: Ansible"
