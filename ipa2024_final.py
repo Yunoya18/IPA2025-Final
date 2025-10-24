@@ -8,11 +8,14 @@
 
 import time
 import os
+import requests
+import json
 from dotenv import load_dotenv
 from requests_toolbelt import MultipartEncoder
-from restconf_final import *
-from netmiko_final import *
-from ansible_final import *
+import restconf_final
+import netconf_final
+import netmiko_final
+import ansible_final
 
 #######################################################################################
 # 2. Assign the Webex access token to the variable ACCESS_TOKEN using environment variables.
@@ -81,38 +84,54 @@ while True:
         command = all_command[1].strip()
         print(command)
 
-        if command in ['restconf', 'netconf']:
-            responseMessage = f"Ok: {command.capitalize()}"
-            method = command
-        else:
-            if method == "":
-                responseMessage = "Error: No method specified"
+        if len(all_command) < 3:
+            if command in ['restconf', 'netconf']:
+                responseMessage = f"Ok: {command.capitalize()}"
+                method = command
             else:
-                if len(all_command) < 3:
+                if method == "":
+                    responseMessage = "Error: No method specified"
+                else:
                     if command in ['create', 'delete', 'enable', 'disable', 'status', 'gigabit_status', 'showrun']:
                         responseMessage = "Error: No IP specified"
                     else:
-                        responseMessage = "No command found."
-                else:
-                    ip = all_command[1].strip()
-                    command = all_command[2].strip()
-    # 5. Complete the logic for each command
+                        responseMessage = "Error: No command found."
+        elif len(all_command) == 3:
+            ip = all_command[1].strip()
+            command = all_command[2].strip()
+            if command == "gigabit_status":
+                responseMessage = netmiko_final.gigabit_status(ip)
+            elif command == "showrun":
+                responseMessage = ansible_final.showrun(ip)
+            else:
+                if method == "restconf":
                     if command == "create":
-                        responseMessage = create(ip)
+                        responseMessage = restconf_final.create(ip)
                     elif command == "delete":
-                        responseMessage = delete(ip)
+                        responseMessage = restconf_final.delete(ip)
                     elif command == "enable":
-                        responseMessage = enable(ip)
+                        responseMessage = restconf_final.enable(ip)
                     elif command == "disable":
-                        responseMessage = disable(ip)
+                        responseMessage = restconf_final.disable(ip)
                     elif command == "status":
-                        responseMessage = status(ip)
-                    elif command == "gigabit_status":
-                        responseMessage = gigabit_status(ip)
-                    elif command == "showrun":
-                        responseMessage = showrun(ip)
+                        responseMessage = restconf_final.status(ip)
                     else:
                         responseMessage = "Error: No command or unknown command"
+                elif method == "netconf":
+                    if command == "create":
+                        responseMessage = netconf_final.create(ip)
+                    elif command == "delete":
+                        responseMessage = netconf_final.delete(ip)
+                    elif command == "enable":
+                        responseMessage = netconf_final.enable(ip)
+                    elif command == "disable":
+                        responseMessage = netconf_final.disable(ip)
+                    elif command == "status":
+                        responseMessage = netconf_final.status(ip)
+                    else:
+                        responseMessage = "Error: No command or unknown command"
+                else:
+                    responseMessage = "Error: No method specified"
 # 6. Complete the code to post the message to the Webex Teams room.
 
         # The Webex Teams POST JSON data for command showrun
